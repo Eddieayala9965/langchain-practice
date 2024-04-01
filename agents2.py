@@ -2,7 +2,7 @@ import os
 import openai
 from dotenv import load_dotenv, find_dotenv
 from langchain_openai import ChatOpenAI
-from langchain.agents import Tool, load_tools, AgentExecutor, cr
+from langchain.agents import Tool, load_tools, AgentExecutor 
 from langchain.agents.react.agent import create_react_agent
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
@@ -20,13 +20,21 @@ Answer the following questions as best you can. You have access to the following
 
 {tools}
 
-Use the tools as needed to answer the question. For reference, the tool names are: {tool_names}.
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!
 
 Question: {query}
-Thought: {agent_scratchpad}
-Action: Decide which tool to use based on the thought process and explain why. If no tool is needed, explain how you would directly answer the question.
-
-Remember to think about which tool could best answer the question or assist with the task at hand. Utilize the tools effectively to provide the best answer you can.
+Thought:{agent_scratchpad}
 '''
 
 prompt = PromptTemplate(
@@ -52,6 +60,8 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, handle_parsing_errors=T
 query = "what is the capital of France?"
 result = agent_executor.invoke({
     "query": query,  # Correcting this to match the expected variable name
-    "agent_scratchpad": ""  # Initially, this could be an empty string or contain previous context
+    "agent_scratchpad": "", 
+    
+    # Initially, this could be an empty string or contain previous context
 })
 print(result["output"])

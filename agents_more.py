@@ -6,6 +6,7 @@ from langchain.agents import Tool, load_tools, AgentExecutor, initialize_agent
 from langchain.agents.react.agent import create_react_agent
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from langchain.memory import ConversationBufferMemory
 
 load_dotenv(find_dotenv())
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -14,6 +15,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 llm_model = "gpt-3.5-turbo"
 llm = ChatOpenAI(temperature=0.0)
 
+memory = ConversationBufferMemory()
 # Second Generic Tool
 prompt = PromptTemplate(
     input_variables=["query"],
@@ -37,20 +39,26 @@ tools.append(llm_tool) # adding the new tool to our tools list
 
 
 #ReAct framework = Reasoning and Action
-agent = initialize_agent(
-    agent="zero-shot-react-description",
+conversational_agent = initialize_agent(
+    agent="conversational-react-description",
     tools=tools,
     llm=llm,
     verbose=True,
-    max_iterations=3 # to avoid high bills from the LLM
+    max_iterations=3,
+    memory=memory
 )
-query = "if I have 54 eggs and Mary has 10, and 5 more people have 12 eggs each.  \
-    How many eggs to we have in total?"
-    
-print(agent.agent.llm_chain.prompt.template)
 
-result = agent(query)
-print(result['output'])
+    
+query = "How old is a person born in 1917 in 2023"
+    
+query_two = "How old would that person be if their age is multiplied by 100?"
+    
+print(conversational_agent.agent.llm_chain.prompt.template)
+
+result = conversational_agent(query)
+results = conversational_agent(query_two)
+# print(result['output'])
+
 
 
 
